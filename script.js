@@ -309,10 +309,75 @@ document.addEventListener('DOMContentLoaded', () => {
         isLoading = true;
     }
 
+    function hideLoading() {
+        loadingIndicator.style.display = 'none';
+        isLoading = false;
+        // Hide infinite loader if present
+        const infiniteLoader = document.getElementById('infiniteLoader');
+        if (infiniteLoader) infiniteLoader.style.display = 'none';
+    }
+
     // Proper async fetchData function
     async function fetchData(params, silent = false) {
         if (!silent) showLoading();
         // Build query string
+        const queryParams = new URLSearchParams(params).toString();
+        const targetUrl = `${apiUrl}?${queryParams}`;
+        
+        // Track original proxy index to avoid infinite loop
+        const originalProxyIndex = currentProxyIndex;
+        let proxyAttempts = 0;
+        let success = false;
+        let responseData = null;
+
+        // Try up to all available proxies
+        while (!success && proxyAttempts < corsProxies.length) {
+            // Use the current proxy
+            const proxyUrl = corsProxies[currentProxyIndex] + encodeURIComponent(targetUrl);
+            
+            try {
+                console.log(`Fetching via CORS proxy ${currentProxyIndex + 1}: ${proxyUrl}`);
+                console.log('Request params:', params);
+                
+                const response = await fetch(proxyUrl);
+                
+                // Handle HTTP error status (including 404)
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                
+                const data = await response.json();
+                
+                // Check for valid API response
+                if (data.code !== 1) {
+                    console.error('API Error:', data.msg);
+                    throw new Error(`API Error: ${data.msg}`);
+                }
+                
+                // Success! We have valid data
+                success = true;
+                responseData = data;
+                console.log('API Response:', data);
+                
+            } catch (error) {
+                console.error(`Fetch Error with proxy ${currentProxyIndex + 1}:`, error);
+                
+                // Move to the next proxy
+                currentProxyIndex = (currentProxyIndex + 1) % corsProxies.length;
+                proxyAttempts++;
+                
+                // Show toast only on the last attempt
+                if (proxyAttempts >= corsProxies.length) {
+                    showToast(`Failed to fetch data after trying all CORS proxies: ${error.message}`, 'error');
+                } else {
+                    showToast(`Switching to CORS proxy ${currentProxyIndex + 1}...`, 'info', 1500);
+                }
+            }
+        }
+        
+        if (!silent) hideLoading();
+        return responseData; // Will be null if all proxies failed
+    }
         const queryParams = new URLSearchParams(params).toString();
         const targetUrl = `${apiUrl}?${queryParams}`;
         
