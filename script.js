@@ -70,7 +70,8 @@ async function renderWatchHistory() {
         // Thumbnail
         const img = document.createElement('img');
         img.className = 'video-thumb';
-        img.src = (video && getValidImageUrl(video.vod_pic)) || 'https://via.placeholder.com/80x45?text=No+Image';
+        let validImageUrl = video ? getValidImageUrl(video.vod_pic) : null;
+        img.src = validImageUrl || 'assets/placeholder.png';
         img.alt = (video && video.vod_name ? video.vod_name : 'Video') + ' thumbnail';
         // Info block
         const info = document.createElement('div');
