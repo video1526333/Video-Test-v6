@@ -436,11 +436,6 @@ function showToast(message, type = 'info', duration = 4000) {
             hasMoreContent = true;
         }
 
-        // Show infinite loader if loading next page (append)
-        const infiniteLoader = document.getElementById('infiniteLoader');
-        if (append && infiniteLoader) infiniteLoader.style.display = 'flex';
-        else if (infiniteLoader) infiniteLoader.style.display = 'none';
-
         const params = { ac: 'list', pg: currentPage };
         
         // Only add category if it's not empty
