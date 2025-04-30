@@ -41,110 +41,6 @@ function addToWatchHistory(videoId, episodeName) {
     console.log('[DEBUG] watchHistory after push:', history);
 }
 
-// Render the watch history modal with improved UI/UX
-async function renderWatchHistory() {
-    const MAX_HISTORY = 20;
-    const fullHistory = getWatchHistory().slice().reverse(); // Show latest first
-    const history = fullHistory.slice(0, MAX_HISTORY);
-    if (history.length === 0) {
-        watchHistoryList.innerHTML = '<p>No watch history yet.</p>';
-        return;
-    }
-    // Fetch video details for only the latest MAX_HISTORY unique videoIds
-    const uniqueIds = [...new Set(history.map(item => item.videoId))];
-    let videoData = {};
-    if (uniqueIds.length > 0) {
-        const data = await fetchData({ ac: 'detail', ids: uniqueIds.join(',') });
-        if (data && data.list) {
-            data.list.forEach(video => {
-                videoData[video.vod_id] = video;
-            });
-        }
-    }
-    watchHistoryList.innerHTML = '';
-    history.forEach(item => {
-        const div = document.createElement('div');
-        div.className = 'watch-history-item';
-        // Video details if available
-        const video = videoData[item.videoId];
-
-        // Thumbnail
-        const img = document.createElement('img');
-        img.className = 'video-thumb';
-        let validImageUrl = video ? getValidImageUrl(video.vod_pic) : null;
-        img.src = validImageUrl || 'assets/placeholder.png';
-        img.alt = (video && video.vod_name ? video.vod_name : 'Video') + ' thumbnail';
-
-        // Info block
-        const info = document.createElement('div');
-        info.className = 'video-info';
-
-        // Title
-        const title = document.createElement('span');
-        title.className = 'video-title';
-        title.textContent = (video && video.vod_name) || item.videoId;
-
-        // Episode
-        const episode = document.createElement('span');
-        episode.className = 'episode';
-        episode.textContent = item.episodeName || '';
-
-        // Watched date
-        const date = document.createElement('span');
-        date.className = 'watched-date';
-        date.textContent = formatDateTime(item.timestamp);
-
-        // Assemble info
-        info.appendChild(title);
-        info.appendChild(episode);
-        info.appendChild(date);
-
-        div.appendChild(img);
-        div.appendChild(info);
-
-        // Click event: open video details
-        div.onclick = () => {
-            showVideoDetails(item.videoId);
-            watchHistoryModal.classList.remove('open');
-            if (typeof updateBodyScrollLock === 'function') updateBodyScrollLock();
-        };
-
-        watchHistoryList.appendChild(div);
-    });
-
-        div.onclick = () => {
-            showVideoDetails(item.videoId);
-            watchHistoryModal.classList.remove('open');
-            if (typeof updateBodyScrollLock === 'function') updateBodyScrollLock();
-        };
-        watchHistoryList.appendChild(div);
-    });
-    // Show a note if there are more entries
-    if (fullHistory.length > MAX_HISTORY) {
-        const moreDiv = document.createElement('div');
-        moreDiv.style.color = 'gray';
-        moreDiv.style.textAlign = 'center';
-        moreDiv.style.marginTop = '1em';
-        moreDiv.textContent = `Only the latest ${MAX_HISTORY} entries are shown.`;
-        watchHistoryList.appendChild(moreDiv);
-    }
-}
-
-// Helper to format ISO string to readable date/time
-function formatDateTime(isoString) {
-    if (!isoString) return '';
-    const date = new Date(isoString);
-    if (isNaN(date.getTime())) return isoString;
-    const y = date.getFullYear();
-    const m = String(date.getMonth() + 1).padStart(2, '0');
-    const d = String(date.getDate()).padStart(2, '0');
-    const hh = String(date.getHours()).padStart(2, '0');
-    const mm = String(date.getMinutes()).padStart(2, '0');
-    const ss = String(date.getSeconds()).padStart(2, '0');
-    return `${y}/${m}/${d}, ${hh}:${mm}:${ss}`;
-}
-
-
 function markEpisodeWatched(videoId, episodeName) {
     console.log('[DEBUG] markEpisodeWatched called with:', videoId, episodeName);
     const watched = getWatchedEpisodes();
@@ -1278,10 +1174,57 @@ document.addEventListener('DOMContentLoaded', () => {
         localStorage.setItem('watchHistory', JSON.stringify(history));
         console.log('[DEBUG] watchHistory after push:', history);
     }
-
-    // --- Initialization ---
+    async function renderWatchHistory() {
+        const MAX_HISTORY = 20;
+        const fullHistory = getWatchHistory().slice().reverse(); // Show latest first
+        const history = fullHistory.slice(0, MAX_HISTORY);
+        if (history.length === 0) {
+            watchHistoryList.innerHTML = '<p>No watch history yet.</p>';
+            return;
+        }
+        // Fetch video details for only the latest MAX_HISTORY unique videoIds
+        const uniqueIds = [...new Set(history.map(item => item.videoId))];
+        let videoData = {};
+        if (uniqueIds.length > 0) {
+            const data = await fetchData({ ac: 'detail', ids: uniqueIds.join(',') });
+            if (data && data.list) {
+                data.list.forEach(video => {
+                    videoData[video.vod_id] = video;
+                });
+            }
+        }
+        watchHistoryList.innerHTML = '';
+        history.forEach(item => {
+            const video = videoData[item.videoId];
+            const div = document.createElement('div');
+            div.className = 'watch-history-item';
+            if (video) {
+                div.innerHTML = `<strong>${video.vod_name}</strong> - <em>${item.episodeName}</em> <span style='color:gray;font-size:0.9em;'>(${new Date(item.timestamp).toLocaleString()})</span>`;
+                div.style.cursor = 'pointer';
+                div.onclick = () => {
+                    showVideoDetails(item.videoId);
+                    watchHistoryModal.classList.remove('open');
+                    if (typeof updateBodyScrollLock === 'function') updateBodyScrollLock();
+                };
+            } else {
+                div.textContent = `${item.videoId} - ${item.episodeName}`;
+            }
+            watchHistoryList.appendChild(div);
+        });
+        // Show a note if there are more entries
+        if (fullHistory.length > MAX_HISTORY) {
+            const moreDiv = document.createElement('div');
+            moreDiv.style.color = 'gray';
+            moreDiv.style.textAlign = 'center';
+            moreDiv.style.marginTop = '1em';
+            moreDiv.textContent = `Only the latest ${MAX_HISTORY} entries are shown.`;
+            watchHistoryList.appendChild(moreDiv);
+        }
+    }
+    // --- Initial Load ---
     async function initialize() {
-        // Remove active from any existing items
+        await loadCategories(); // Load categories first
+        // Clear any existing active categories
         const activeItems = categoryList.querySelectorAll('li.active');
         activeItems.forEach(li => li.classList.remove('active'));
         // Default load: show watch list
@@ -1296,7 +1239,6 @@ document.addEventListener('DOMContentLoaded', () => {
         // Check if we should load a specific video (from shared link)
         checkForSharedVideo();
     }
-
 
     // --- Check for shared video in URL ---
     function checkForSharedVideo() {
