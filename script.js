@@ -372,32 +372,11 @@ document.addEventListener('DOMContentLoaded', () => {
                 } else {
                     showToast(`Switching to CORS proxy ${currentProxyIndex + 1}...`, 'info', 1500);
                 }
-
-// Create back to top button
-const backToTopBtn = document.createElement('button');
-backToTopBtn.id = 'backToTop';
-backToTopBtn.innerHTML = '&uarr;';
-backToTopBtn.title = 'Back to Top';
-document.body.appendChild(backToTopBtn);
-
-// Nav toggle event for mobile
-if (navToggle) {
-    navToggle.addEventListener('click', () => {
-        categoryNav.classList.toggle('open');
-        navToggle.setAttribute('aria-expanded', categoryNav.classList.contains('open'));
-    });
-    // Close nav on outside click
-    document.addEventListener('click', (e) => {
-        if (window.innerWidth <= 768 && categoryNav.classList.contains('open')) {
-            if (!categoryNav.contains(e.target) && e.target !== navToggle) {
-                categoryNav.classList.remove('open');
-                navToggle.setAttribute('aria-expanded', 'false');
-             console.error("Could not load categories.");
-             return;
-         }
-
-        // Clear previous categories
-        categoryList.innerHTML = '';
+            }
+        }
+        if (!silent) hideLoading();
+        return responseData; // Will be null if all proxies failed
+    }
         
         // Check if user is authenticated
         const isAuthenticated = checkStoredPassword();
@@ -1165,13 +1144,18 @@ updateBodyScrollLock();
         } else {
             // Show error message
             passwordMessage.textContent = 'Incorrect password. Try again.';
-            passwordMessage.className = '';
             passwordInput.value = ''; // Clear password field
-        }
+            passwordMessage.textContent = '';
+        }, 1500);
+    } else {
+        // Show error message
+        passwordMessage.textContent = 'Incorrect password. Try again.';
+        passwordMessage.className = '';
+        passwordInput.value = ''; // Clear password field
     }
+}
 
 // --- Watch History Functions ---
-
 function addToWatchHistory(videoId, episodeName) {
     console.log('[DEBUG] addToWatchHistory called with:', videoId, episodeName);
     const history = getWatchHistory();
@@ -1190,6 +1174,7 @@ function addToWatchHistory(videoId, episodeName) {
     localStorage.setItem('watchHistory', JSON.stringify(history));
     console.log('[DEBUG] watchHistory after push:', history);
 }
+
 async function renderWatchHistory() {
     const MAX_HISTORY = 20;
     watchHistoryList.innerHTML = '<div class="loader"></div>';
