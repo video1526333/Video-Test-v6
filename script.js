@@ -996,7 +996,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 currentActive.classList.remove('active');
             }
             if (categoryList) {
-                categoryList.querySelector('li[data-id=""]').classList.add('active');
+                categoryList.querySelector('li[data-id=""]')?.classList.add('active');
             }
 
             loadVideos(1, '', searchTerm); // Load page 1, clear category, use search term
