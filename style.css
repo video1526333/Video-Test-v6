@@ -699,11 +699,6 @@ nav ul li.active {
     align-items: stretch;
     padding: 1rem 0.5rem 0.5rem 0.5rem;
     border-radius: 0 0 10px 10px !important;
-    width: 100%;
-  }
-  main{
-    width: 100%;
-    padding: 1rem 0.5rem 0.5rem 0.5rem;
   }
 }
 
