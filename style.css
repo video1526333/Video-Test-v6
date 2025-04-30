@@ -726,6 +726,44 @@ nav ul li.active {
 .toast.info {
   border-left: 4px solid var(--accent);
 }
+/* Watch History Enhanced Styles */
+.watch-history-item-enhanced {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 0;
+  border-bottom: 1px solid #23232b;
+  cursor: pointer;
+  background: none;
+  transition: background 0.16s;
+}
+.watch-history-item-enhanced:hover {
+  background: #23232b;
+}
+.watch-history-thumb {
+  width: 50px;
+  height: 70px;
+  object-fit: cover;
+  border-radius: 6px;
+  background: #23232b;
+  flex-shrink: 0;
+}
+.watch-history-info {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  min-width: 0;
+}
+@media (max-width: 540px) {
+  .watch-history-thumb {
+    width: 36px;
+    height: 50px;
+  }
+  .watch-history-item-enhanced {
+    gap: 7px;
+    padding: 6px 0;
+  }
+}
 /* Watch list button styling */
 .watchlist-button {
   background: var(--accent);
