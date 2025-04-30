@@ -1,4 +1,4 @@
-const CACHE_NAME = 'video-portal-cache-v1';
+const CACHE_NAME = 'video-portal-cache-v6';
 const urlsToCache = [
   './',
   './index.html',
