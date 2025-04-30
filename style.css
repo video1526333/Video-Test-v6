@@ -703,6 +703,7 @@ nav ul li.active {
   }
   main{
     width: 100%;
+    padding: 1rem 0.5rem 0.5rem 0.5rem;
   }
 }
 
