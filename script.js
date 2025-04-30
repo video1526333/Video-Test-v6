@@ -656,29 +656,108 @@ async function loadVideos(page = 1, categoryId = '', searchTerm = '', append = f
                 actions.appendChild(shareBtn);
                 actions.appendChild(wlBtn);
 
-                card.appendChild(img);
-                card.appendChild(actions);
-                card.appendChild(title);
-                card.appendChild(remarks);
-                videoGrid.appendChild(card);
-            });
-            
-            // Show results count for initial search
-            if (currentSearch && !append) {
-                showToast(`Found ${data.list.length} video(s) for "${currentSearch}"`, 'info', 3000);
             }
+
+            // If list API had no valid image, fetch detail API to get the real thumbnail
+            if (!validImageUrl) {
+                fetchData({ ac: 'detail', ids: video.vod_id }, true)
+                    .then(detailData => {
+                        if (detailData && detailData.list && detailData.list[0]?.vod_pic) {
+                            const detailImg = getValidImageUrl(detailData.list[0].vod_pic);
+                            if (detailImg) img.src = detailImg;
+                        }
+                    })
+                    .catch(err => console.warn('Failed to fetch detail image:', err));
+            }
+
+            const title = document.createElement('h3');
+            title.textContent = video.vod_name || 'No Title'; // Handle null titles
+
+            const remarks = document.createElement('p');
+            remarks.textContent = video.vod_remarks || ''; // Handle null remarks
+
+            // Card actions overlay
+            const actions = document.createElement('div');
+            actions.className = 'card-actions';
+            // Play button
+            const playBtn = document.createElement('button');
+            playBtn.innerHTML = '▶️';
+            playBtn.className = 'play-btn';
+            playBtn.setAttribute('aria-label', 'Play');
+            playBtn.tabIndex = 0;
+            playBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                showVideoDetails(video.vod_id);
+            });
+            // Share button
+            const shareBtn = document.createElement('button');
+            shareBtn.innerHTML = '🔗';
+            shareBtn.className = 'share-btn';
+            shareBtn.setAttribute('aria-label', 'Share');
+            shareBtn.tabIndex = 0;
+            shareBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                currentVideoId = video.vod_id;
+                showShareModal();
+            });
+            // Watchlist button
+            const wlBtn = document.createElement('button');
+            wlBtn.innerHTML = watchList.includes(video.vod_id) ? '★' : '☆';
+            wlBtn.className = 'watchlist-btn';
+            wlBtn.setAttribute('aria-label', watchList.includes(video.vod_id) ? 'Remove from Watch List' : 'Add to Watch List');
+            wlBtn.tabIndex = 0;
+            wlBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                const idx = watchList.indexOf(video.vod_id);
+                if (idx === -1) {
+                    watchList.push(video.vod_id);
+                    showToast('Added to watch list', 'info');
+                    wlBtn.innerHTML = '★';
+                    wlBtn.setAttribute('aria-label', 'Remove from Watch List');
+                } else {
+                    watchList.splice(idx, 1);
+                    showToast('Removed from watch list', 'info');
+                    wlBtn.innerHTML = '☆';
+                    wlBtn.setAttribute('aria-label', 'Add to Watch List');
+                }
+                localStorage.setItem('watchList', JSON.stringify(watchList));
+            });
+            actions.appendChild(playBtn);
+            actions.appendChild(shareBtn);
+            actions.appendChild(wlBtn);
+
+            card.appendChild(img);
+            card.appendChild(actions);
+            card.appendChild(title);
+            card.appendChild(remarks);
+            videoGrid.appendChild(card);
+        });
+
+        // Show results count for initial search
+        if (currentSearch && !append) {
+            showToast(`Found ${data.list.length} video(s) for "${currentSearch}"`, 'info', 3000);
         }
 
         totalPages = data.pagecount || 1;
-        if (currentPage >= totalPages) {
+        if (page >= totalPages) {
             hasMoreContent = false;
         }
     }
+}
 
-    // Check if user scrolled near bottom
-    function checkScroll() {
-        if (isLoading || !hasMoreContent) return;
-        
+// Check if user scrolled near bottom
+function checkScroll() {
+    if (isLoading || !hasMoreContent) return;
+    
+    const scrollPosition = window.innerHeight + window.scrollY;
+    const pageHeight = document.body.offsetHeight;
+    const scrollThreshold = 0.8; // Load more when user scrolls to 80% of the page
+    
+    // Show/hide back to top button
+    if (window.scrollY > 300) {
+        backToTopBtn.classList.add('visible');
+    } else {
+        backToTopBtn.classList.remove('visible');
         const scrollPosition = window.innerHeight + window.scrollY;
         const pageHeight = document.body.offsetHeight;
         const scrollThreshold = 0.8; // Load more when user scrolls to 80% of the page
