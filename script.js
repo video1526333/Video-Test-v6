@@ -452,6 +452,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     async function loadVideos(page = 1, categoryId = '', searchTerm = '', append = false) {
+    console.log('[DEBUG] loadVideos called with:', { page, categoryId, searchTerm, append });
         if (isLoading || (!append && page > 1 && !hasMoreContent)) return;
 
         currentPage = page;
@@ -944,6 +945,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- Event Listeners ---
 
+    // Debug: Check search input/button initialization
+    console.log('[DEBUG] searchInput:', searchInput);
+    console.log('[DEBUG] searchButton:', searchButton);
+
     // Back to top button click
     backToTopBtn.addEventListener('click', () => {
         window.scrollTo({
@@ -987,6 +992,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Search
     searchButton.addEventListener('click', () => {
+        console.log('[DEBUG] Search button clicked');
         const searchTerm = searchInput.value.trim();
         if (searchTerm) {
             console.log(`Searching for: "${searchTerm}"`);
@@ -1007,6 +1013,9 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     searchInput.addEventListener('keypress', (event) => {
+        if (event.key === 'Enter') {
+            console.log('[DEBUG] Enter pressed in search input');
+        }
         if (event.key === 'Enter') {
             searchButton.click(); // Trigger search on Enter key
         }
