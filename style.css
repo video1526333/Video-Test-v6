@@ -813,6 +813,9 @@ header {
 #watchHistoryModal{
     z-index: 1004;
 }
+#settingsModal{
+    z-index: 1005;
+}
 /* Card hover lift and overlay */
 .video-card {
   position: relative;
