@@ -440,7 +440,7 @@ nav ul li.active { background: var(--accent); color: var(--bg); }
 }
 
 #videoDetailModal .close-button {
-  position: absolute;
+  position: fixed;
   top: 5px;
   right: 10px;
   z-index: 2000;
