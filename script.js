@@ -1178,6 +1178,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const MAX_HISTORY = 20;
         const fullHistory = getWatchHistory().slice().reverse(); // Show latest first
         const history = fullHistory.slice(0, MAX_HISTORY);
+        watchHistoryList.innerHTML = '';
         if (history.length === 0) {
             watchHistoryList.innerHTML = '<p>No watch history yet.</p>';
             return;
@@ -1187,17 +1188,83 @@ document.addEventListener('DOMContentLoaded', () => {
         let videoData = {};
         if (uniqueIds.length > 0) {
             const data = await fetchData({ ac: 'detail', ids: uniqueIds.join(',') });
+            console.log('[DEBUG] fetched video details for history:', data);
             if (data && data.list) {
                 data.list.forEach(video => {
                     videoData[video.vod_id] = video;
                 });
             }
+        }
+        history.forEach(item => {
+            const video = videoData[item.videoId];
+            console.log('[DEBUG] rendering history item:', item, 'video:', video);
+            const div = document.createElement('div');
+            div.className = 'watch-history-item watch-history-item-enhanced';
+            div.style.display = 'flex';
+            div.style.alignItems = 'center';
+            div.style.gap = '12px';
+            div.style.padding = '8px 0';
+            div.style.cursor = 'pointer';
+            div.style.borderBottom = '1px solid #23232b';
+            // Thumbnail
+            const thumb = document.createElement('img');
+            thumb.className = 'watch-history-thumb';
+            thumb.style.width = '50px';
+            thumb.style.height = '70px';
+            thumb.style.objectFit = 'cover';
+            thumb.style.borderRadius = '6px';
+            thumb.style.background = '#23232b';
+            thumb.style.flexShrink = '0';
+            thumb.src = video ? getValidImageUrl(video.vod_pic) || '' : '';
+            thumb.alt = video ? (video.vod_name || 'No Image') : 'No Image';
+            div.appendChild(thumb);
+            // Info block
+            const info = document.createElement('div');
+            info.className = 'watch-history-info';
+            info.style.display = 'flex';
+            info.style.flexDirection = 'column';
+            info.style.justifyContent = 'center';
+            info.style.minWidth = '0';
+            const title = document.createElement('strong');
+            title.textContent = video ? video.vod_name : item.videoId;
+            title.style.fontSize = '1.03em';
+            title.style.overflow = 'hidden';
+            title.style.textOverflow = 'ellipsis';
+            title.style.whiteSpace = 'nowrap';
+            info.appendChild(title);
+            const episode = document.createElement('em');
+            episode.textContent = ` ${item.episodeName}`;
+            episode.style.margin = '3px 0 0 0';
+            episode.style.fontStyle = 'normal';
+            episode.style.color = '#bbb';
+            episode.style.fontSize = '0.97em';
+            info.appendChild(episode);
+            const date = new Date(item.timestamp);
+            const dateString = `${date.toLocaleDateString()}, ${date.toLocaleTimeString()}`;
+            const dateSpan = document.createElement('span');
+            dateSpan.style.color = 'gray';
+            dateSpan.style.fontSize = '0.9em';
+            dateSpan.style.marginTop = '2px';
+            dateSpan.textContent = dateString;
+            info.appendChild(dateSpan);
+            div.appendChild(info);
+            div.onclick = () => {
+                showVideoDetails(item.videoId);
+                watchHistoryModal.classList.remove('open');
+                if (typeof updateBodyScrollLock === 'function') updateBodyScrollLock();
+            };
+            watchHistoryList.appendChild(div);
+        });
+        // Show a note if there are more entries
+        if (fullHistory.length > MAX_HISTORY) {
+            const moreDiv = document.createElement('div');
+            moreDiv.style.color = 'gray';
+            moreDiv.style.textAlign = 'center';
+            moreDiv.style.marginTop = '1em';
+            moreDiv.textContent = `Only the latest ${MAX_HISTORY} entries are shown.`;
+            watchHistoryList.appendChild(moreDiv);
+        }
     }
-}
-
-// ... (rest of the code remains the same)
-
-    // --- Check for shared video in URL ---
     function checkForSharedVideo() {
         const urlParams = new URLSearchParams(window.location.search);
         const videoId = urlParams.get('video');
