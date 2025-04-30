@@ -111,10 +111,7 @@ async function renderWatchHistory() {
 
         watchHistoryList.appendChild(div);
     });
-        info.appendChild(date);
-        div.appendChild(img);
-        div.appendChild(info);
-        // Click: open video details
+
         div.onclick = () => {
             showVideoDetails(item.videoId);
             watchHistoryModal.classList.remove('open');
