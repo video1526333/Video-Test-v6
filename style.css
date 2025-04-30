@@ -729,6 +729,32 @@ nav ul li.active { background: var(--accent); color: var(--bg); }
     }
 }
 
+/* Loader spinner for watch history */
+.loader {
+  margin: 30px auto 30px auto;
+  border: 4px solid #23232b;
+  border-top: 4px solid var(--accent);
+  border-radius: 50%;
+  width: 36px;
+  height: 36px;
+  animation: spin 1s linear infinite;
+}
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Thumbnail in watch history */
+.history-thumb {
+  width: 44px;
+  height: 62px;
+  object-fit: cover;
+  border-radius: 4px;
+  margin-right: 12px;
+  vertical-align: middle;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+}
+
 /* Toast notification styles */
 #toastContainer {
   position: fixed;

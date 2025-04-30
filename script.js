@@ -1176,6 +1176,7 @@ function addToWatchHistory(videoId, episodeName) {
 }
 async function renderWatchHistory() {
     const MAX_HISTORY = 20;
+    watchHistoryList.innerHTML = '<div class="loader"></div>';
     const fullHistory = getWatchHistory().slice().reverse(); // Show latest first
     const history = fullHistory.slice(0, MAX_HISTORY);
     if (history.length === 0) {
@@ -1188,27 +1189,35 @@ async function renderWatchHistory() {
     if (uniqueIds.length > 0) {
         const data = await fetchData({ ac: 'detail', ids: uniqueIds.join(',') });
         if (data && data.list) {
-            data.list.forEach(video => {
-                videoData[video.vod_id] = video;
+            data.list.forEach(v => {
+                videoData[v.vod_id] = v;
             });
         }
     }
     watchHistoryList.innerHTML = '';
     history.forEach(item => {
-        const video = videoData[item.videoId];
         const div = document.createElement('div');
         div.className = 'watch-history-item';
-        if (video) {
-            div.innerHTML = `<strong>${video.vod_name}</strong> - <em>${item.episodeName}</em> <span style='color:gray;font-size:0.9em;'>(${new Date(item.timestamp).toLocaleString()})</span>`;
-            div.style.cursor = 'pointer';
-            div.onclick = () => {
-                showVideoDetails(item.videoId);
-                watchHistoryModal.classList.remove('open');
-                if (typeof updateBodyScrollLock === 'function') updateBodyScrollLock();
-            };
-        } else {
-            div.textContent = `${item.videoId} - ${item.episodeName}`;
+        div.style.cursor = 'pointer';
+        // Add image if available
+        let imgHtml = '';
+        if (videoData[item.videoId] && videoData[item.videoId].vod_pic) {
+            imgHtml = `<img src="${videoData[item.videoId].vod_pic}" class="history-thumb" alt="Thumbnail">`;
         }
+        // Format date
+        let dateStr = '';
+        if (item.timestamp) {
+            const d = new Date(item.timestamp);
+            dateStr = ` <span style="color:gray;font-size:0.9em;">(${d.toLocaleDateString()} ${d.toLocaleTimeString()})</span>`;
+        }
+        // Title
+        let title = videoData[item.videoId] ? videoData[item.videoId].vod_name : item.videoId;
+        div.innerHTML = `${imgHtml}<strong>${title}</strong> - <em>${item.episodeName}</em>${dateStr}`;
+        div.onclick = () => {
+            showVideoDetails(item.videoId);
+            watchHistoryModal.classList.remove('open');
+            if (typeof updateBodyScrollLock === 'function') updateBodyScrollLock();
+        };
         watchHistoryList.appendChild(div);
     });
     // Show a note if there are more entries
@@ -1221,6 +1230,7 @@ async function renderWatchHistory() {
         watchHistoryList.appendChild(moreDiv);
     }
 }
+
     // --- Initial Load ---
     async function initialize() {
         await loadCategories(); // Load categories first
