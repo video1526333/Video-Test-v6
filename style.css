@@ -539,10 +539,10 @@ nav ul li.active {
   box-shadow: 0 3px 6px rgba(187, 134, 252, 0.4);
 }
 #videoDetailModal {
-  z-index: 1001;
+  z-index: 1002;
 }
 #videoPlayerModal {
-  z-index: 1002;
+  z-index: 1003;
 }
 @media (min-width: 768px) {
   .modal-content {
@@ -810,10 +810,10 @@ header {
   transition: background 0.3s ease;
 }
 #watchHistoryModal{
-    z-index: 1004;
+    z-index: 1005;
 }
 #settingsModal{
-    z-index: 1005;
+    z-index: 1006;
 }
 /* Card hover lift and overlay */
 .video-card {
