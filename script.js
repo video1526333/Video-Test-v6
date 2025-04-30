@@ -461,23 +461,14 @@ document.addEventListener('DOMContentLoaded', () => {
             hasMoreContent = true;
         }
 
-        const params = { ac: 'list', pg: currentPage };
+        const params = currentSearch ? { wd: currentSearch } : { ac: 'list', pg: currentPage };
 
-        // Only add category if it's not empty
-        if (currentCategory) {
+        // Only add category if it's not empty and not searching
+        if (currentCategory && !currentSearch) {
             params.t = currentCategory;
         }
 
-        // Only add search term if it's not empty
-        if (currentSearch) {
-            params.wd = (currentSearch);
-            console.log(`Search term encoded: ${params.wd}`);
-        }
-
-        // Show info to user
-        if (currentSearch && !append) {
-            showToast(`Searching for "${currentSearch}"...`, 'info', 2000);
-        }
+        console.log(`Search term: ${currentSearch}`);
 
         const data = await fetchData(params);
         if (!data || !data.list) {
