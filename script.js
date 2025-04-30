@@ -319,6 +319,7 @@ document.addEventListener('DOMContentLoaded', () => {
         // Build query string
         const queryParams = new URLSearchParams(params).toString();
         const targetUrl = `${apiUrl}?${queryParams}`;
+    console.log('[DEBUG][fetchData] Request URL:', targetUrl);
 
         // Track original proxy index to avoid infinite loop
         const originalProxyIndex = currentProxyIndex;
@@ -372,7 +373,8 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         if (!silent) hideLoading();
-        return responseData; // Will be null if all proxies failed
+        console.log('[DEBUG][fetchData] Response data:', responseData);
+    return responseData; // Will be null if all proxies failed
     }
 
     // --- Core Functions ---
