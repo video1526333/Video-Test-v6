@@ -651,7 +651,6 @@ nav ul li.active { background: var(--accent); color: var(--bg); }
         height: 100%;
         max-width: 100vw;
         max-height: 100vh;
-        margin: 10% auto;
     }
 
     .modal-poster {
