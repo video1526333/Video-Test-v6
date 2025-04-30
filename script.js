@@ -372,76 +372,26 @@ document.addEventListener('DOMContentLoaded', () => {
                 } else {
                     showToast(`Switching to CORS proxy ${currentProxyIndex + 1}...`, 'info', 1500);
                 }
-            }
-        }
-        
-        if (!silent) hideLoading();
-        return responseData; // Will be null if all proxies failed
-    }
-        const queryParams = new URLSearchParams(params).toString();
-        const targetUrl = `${apiUrl}?${queryParams}`;
-        
-        // Track original proxy index to avoid infinite loop
-        const originalProxyIndex = currentProxyIndex;
-        let proxyAttempts = 0;
-        let success = false;
-        let responseData = null;
 
-        // Try up to all available proxies
-        while (!success && proxyAttempts < corsProxies.length) {
-            // Use the current proxy
-            const proxyUrl = corsProxies[currentProxyIndex] + encodeURIComponent(targetUrl);
-            
-            try {
-                console.log(`Fetching via CORS proxy ${currentProxyIndex + 1}: ${proxyUrl}`);
-                console.log('Request params:', params);
-                
-                const response = await fetch(proxyUrl);
-                
-                // Handle HTTP error status (including 404)
-                if (!response.ok) {
-                    throw new Error(`HTTP error! status: ${response.status}`);
-                }
-                
-                const data = await response.json();
-                
-                // Check for valid API response
-                if (data.code !== 1) {
-                    console.error('API Error:', data.msg);
-                    throw new Error(`API Error: ${data.msg}`);
-                }
-                
-                // Success! We have valid data
-                success = true;
-                responseData = data;
-                console.log('API Response:', data);
-                
-            } catch (error) {
-                console.error(`Fetch Error with proxy ${currentProxyIndex + 1}:`, error);
-                
-                // Move to the next proxy
-                currentProxyIndex = (currentProxyIndex + 1) % corsProxies.length;
-                proxyAttempts++;
-                
-                // Show toast only on the last attempt
-                if (proxyAttempts >= corsProxies.length) {
-                    showToast(`Failed to fetch data after trying all CORS proxies: ${error.message}`, 'error');
-                } else {
-                    showToast(`Switching to CORS proxy ${currentProxyIndex + 1}...`, 'info', 1500);
-                }
-            }
-        }
-        
-        if (!silent) hideLoading();
-        return responseData; // Will be null if all proxies failed
-    }
+// Create back to top button
+const backToTopBtn = document.createElement('button');
+backToTopBtn.id = 'backToTop';
+backToTopBtn.innerHTML = '&uarr;';
+backToTopBtn.title = 'Back to Top';
+document.body.appendChild(backToTopBtn);
 
-    // --- Core Functions ---
-
-    async function loadCategories() {
-        // Fetch any list page to get categories (they are included in list responses)
-        const data = await fetchData({ ac: 'list', pg: 1 });
-        if (!data || !data.class) {
+// Nav toggle event for mobile
+if (navToggle) {
+    navToggle.addEventListener('click', () => {
+        categoryNav.classList.toggle('open');
+        navToggle.setAttribute('aria-expanded', categoryNav.classList.contains('open'));
+    });
+    // Close nav on outside click
+    document.addEventListener('click', (e) => {
+        if (window.innerWidth <= 768 && categoryNav.classList.contains('open')) {
+            if (!categoryNav.contains(e.target) && e.target !== navToggle) {
+                categoryNav.classList.remove('open');
+                navToggle.setAttribute('aria-expanded', 'false');
              console.error("Could not load categories.");
              return;
          }
