@@ -470,8 +470,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // Only add search term if it's not empty
         if (currentSearch) {
-            params.search = encodeURIComponent(currentSearch);
-            console.log(`Search term encoded: ${params.search}`);
+            params.wd = encodeURIComponent(currentSearch);
+            console.log(`Search term encoded: ${params.wd}`);
         }
 
         // Show info to user
