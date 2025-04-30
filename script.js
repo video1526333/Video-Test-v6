@@ -1262,6 +1262,24 @@ document.addEventListener('DOMContentLoaded', () => {
         if (currentActive) currentActive.classList.remove('active');
         loadWatchList();
     });
+
+    // --- Restore initialize function ---
+    async function initialize() {
+        await loadCategories(); // Load categories first
+        // Clear any existing active categories
+        const activeItems = categoryList.querySelectorAll('li.active');
+        activeItems.forEach(li => li.classList.remove('active'));
+        // Default load: show watch list
+        const watchLi = categoryList.querySelector('li[data-id="watchlist"]');
+        if (watchLi) {
+            watchLi.classList.add('active');
+        }
+        loadWatchList();
+        // Check if user is already authenticated
+        checkStoredPassword();
+        // Check if we should load a specific video (from shared link)
+        checkForSharedVideo();
+    }
     initialize();
 
     // --- PWA Service Worker Registration ---
