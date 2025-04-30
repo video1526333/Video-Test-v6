@@ -67,30 +67,50 @@ async function renderWatchHistory() {
         div.className = 'watch-history-item';
         // Video details if available
         const video = videoData[item.videoId];
+
         // Thumbnail
         const img = document.createElement('img');
         img.className = 'video-thumb';
         let validImageUrl = video ? getValidImageUrl(video.vod_pic) : null;
         img.src = validImageUrl || 'assets/placeholder.png';
         img.alt = (video && video.vod_name ? video.vod_name : 'Video') + ' thumbnail';
+
         // Info block
         const info = document.createElement('div');
         info.className = 'video-info';
+
         // Title
         const title = document.createElement('span');
         title.className = 'video-title';
         title.textContent = (video && video.vod_name) || item.videoId;
+
         // Episode
         const episode = document.createElement('span');
         episode.className = 'episode';
         episode.textContent = item.episodeName || '';
+
         // Watched date
         const date = document.createElement('span');
         date.className = 'watched-date';
         date.textContent = formatDateTime(item.timestamp);
+
         // Assemble info
         info.appendChild(title);
         info.appendChild(episode);
+        info.appendChild(date);
+
+        div.appendChild(img);
+        div.appendChild(info);
+
+        // Click event: open video details
+        div.onclick = () => {
+            showVideoDetails(item.videoId);
+            watchHistoryModal.classList.remove('open');
+            if (typeof updateBodyScrollLock === 'function') updateBodyScrollLock();
+        };
+
+        watchHistoryList.appendChild(div);
+    });
         info.appendChild(date);
         div.appendChild(img);
         div.appendChild(info);
