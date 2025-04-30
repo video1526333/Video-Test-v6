@@ -425,35 +425,11 @@ function showToast(message, type = 'info', duration = 4000) {
     requestAnimationFrame(() => toast.classList.add('show'));
     // remove after duration
     setTimeout(() => {
-        toast.classList.remove('show');
-        toast.addEventListener('transitionend', () => {
-            toast.remove();
-        });
-    }, duration);
-}
-            return imageUrl;
-        }
-        
-        // If it's a relative URL (starts with /), add domain
-        if (imageUrl.startsWith('/')) {
-            return 'https://pic3.yzzyimg.online' + imageUrl;
-        }
-        
-        // Try to parse URLs that might be missing protocol
-        if (imageUrl.startsWith('pic1.') || 
-            imageUrl.startsWith('pic2.') || 
-            imageUrl.startsWith('pic3.') || 
-            imageUrl.startsWith('yzzyimg.')) {
-            return 'https://' + imageUrl;
-        }
-        
-        return null;
-    }
 
-    async function loadVideos(page = 1, categoryId = '', searchTerm = '', append = false) {
-        if (isLoading || (!append && page > 1 && !hasMoreContent)) return;
-        
-        currentPage = page;
+                // Show infinite loader if loading next page (append)
+                const infiniteLoader = document.getElementById('infiniteLoader');
+                if (append && infiniteLoader) infiniteLoader.style.display = 'flex';
+                else if (infiniteLoader) infiniteLoader.style.display = 'none';
         if (!append) {
             currentCategory = categoryId;
             currentSearch = searchTerm;
