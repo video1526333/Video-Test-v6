@@ -508,6 +508,7 @@ async function fetchData(params, silent = false) {
 }
 
 // Async function to load videos
+// --- BEGIN loadVideos ---
 async function loadVideos(page = 1, categoryId = '', searchTerm = '', append = false) {
     // Show infinite loader if loading next page (append)
     const infiniteLoader = document.getElementById('infiniteLoader');
@@ -745,6 +746,7 @@ async function loadVideos(page = 1, categoryId = '', searchTerm = '', append = f
     }
 }
 
+// --- END loadVideos ---
 // Check if user scrolled near bottom
 function checkScroll() {
     if (isLoading || !hasMoreContent) return;
@@ -775,7 +777,9 @@ function checkScroll() {
         }
     }
 
-    async function showVideoDetails(videoId) {
+    // --- END checkScroll ---
+// --- BEGIN showVideoDetails ---
+async function showVideoDetails(videoId) {
          const data = await fetchData({ ac: 'detail', ids: videoId });
          if (!data || !data.list || data.list.length === 0) {
              showToast('Failed to load video details.', 'error');
@@ -1442,7 +1446,9 @@ async function renderWatchHistory() {
         });
         window.scrollTo({ top: 0, behavior: 'smooth' });
     }
-    function toggleWatchList() {
+    // --- END showVideoDetails ---
+// --- BEGIN toggleWatchList ---
+function toggleWatchList() {
         if (!currentVideoId) return;
         const idx = watchList.indexOf(currentVideoId);
         if (idx === -1) {
@@ -1456,7 +1462,8 @@ async function renderWatchHistory() {
         addToWatchListButton.textContent = watchList.includes(currentVideoId) ? 'Remove from Watch List' : 'Add to Watch List';
     }
     // Event listeners for Watch List buttons
-    addToWatchListButton.addEventListener('click', toggleWatchList);
+    // --- END toggleWatchList ---
+addToWatchListButton.addEventListener('click', toggleWatchList);
     mobileWatchListButton.addEventListener('click', () => {
         const currentActive = categoryList.querySelector('.active');
         if (currentActive) currentActive.classList.remove('active');
