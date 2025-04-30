@@ -305,6 +305,15 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- Helper Functions ---
     function showLoading() {
+        loadingIndicator.style.display = 'block';
+        isLoading = true;
+    }
+
+    // Proper async fetchData function
+    async function fetchData(params, silent = false) {
+        if (!silent) showLoading();
+        // Build query string
+        const queryParams = new URLSearchParams(params).toString();
         const targetUrl = `${apiUrl}?${queryParams}`;
         
         // Track original proxy index to avoid infinite loop
