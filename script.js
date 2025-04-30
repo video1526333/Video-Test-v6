@@ -319,7 +319,6 @@ document.addEventListener('DOMContentLoaded', () => {
         // Build query string
         const queryParams = new URLSearchParams(params).toString();
         const targetUrl = `${apiUrl}?${queryParams}`;
-    console.log('[DEBUG][fetchData] Request URL:', targetUrl);
 
         // Track original proxy index to avoid infinite loop
         const originalProxyIndex = currentProxyIndex;
@@ -373,8 +372,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         if (!silent) hideLoading();
-        console.log('[DEBUG][fetchData] Response data:', responseData);
-    return responseData; // Will be null if all proxies failed
+        return responseData; // Will be null if all proxies failed
     }
 
     // --- Core Functions ---
@@ -454,7 +452,6 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     async function loadVideos(page = 1, categoryId = '', searchTerm = '', append = false) {
-    console.log('[DEBUG] loadVideos called with:', { page, categoryId, searchTerm, append });
         if (isLoading || (!append && page > 1 && !hasMoreContent)) return;
 
         currentPage = page;
@@ -947,10 +944,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- Event Listeners ---
 
-    // Debug: Check search input/button initialization
-    console.log('[DEBUG] searchInput:', searchInput);
-    console.log('[DEBUG] searchButton:', searchButton);
-
     // Back to top button click
     backToTopBtn.addEventListener('click', () => {
         window.scrollTo({
@@ -994,7 +987,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Search
     searchButton.addEventListener('click', () => {
-        console.log('[DEBUG] Search button clicked');
         const searchTerm = searchInput.value.trim();
         if (searchTerm) {
             console.log(`Searching for: "${searchTerm}"`);
@@ -1003,12 +995,7 @@ document.addEventListener('DOMContentLoaded', () => {
             if (currentActive) {
                 currentActive.classList.remove('active');
             }
-            const allCategoryLi = categoryList.querySelector('li[data-id=""]');
-            if (allCategoryLi) {
-                allCategoryLi.classList.add('active');
-            } else {
-                console.warn('[DEBUG] No <li data-id=""> found when resetting active category on search.');
-            }
+            categoryList.querySelector('li[data-id=""]').classList.add('active');
 
             loadVideos(1, '', searchTerm); // Load page 1, clear category, use search term
 
@@ -1020,9 +1007,6 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     searchInput.addEventListener('keypress', (event) => {
-        if (event.key === 'Enter') {
-            console.log('[DEBUG] Enter pressed in search input');
-        }
         if (event.key === 'Enter') {
             searchButton.click(); // Trigger search on Enter key
         }
