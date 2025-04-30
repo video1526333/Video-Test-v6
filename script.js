@@ -1325,6 +1325,8 @@ function addToWatchHistory(videoId, episodeName) {
     console.log('[DEBUG] watchHistory after push:', history);
 }
 
+// --- END toggleWatchList ---
+// --- BEGIN renderWatchHistory ---
 async function renderWatchHistory() {
     const MAX_HISTORY = 20;
     watchHistoryList.innerHTML = '<div class="loader"></div>';
@@ -1382,8 +1384,8 @@ async function renderWatchHistory() {
     }
 }
 
-    // --- Initial Load ---
-    async function initialize() {
+// --- Initial Load ---
+async function initialize() {
         await loadCategories(); // Load categories first
         // Clear any existing active categories
         const activeItems = categoryList.querySelectorAll('li.active');
@@ -1484,5 +1486,3 @@ addToWatchListButton.addEventListener('click', toggleWatchList);
                 });
         });
     }
-
-}); 
