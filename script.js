@@ -58,7 +58,305 @@ function isEpisodeWatched(videoId, episodeName) {
 }
 
 
-document.addEventListener('DOMContentLoaded', () => {
+/**
+ * StorageModule
+ * Encapsulates all localStorage operations related to user data.
+ * Handles watch history, playback positions, watched episodes, and watch list.
+ * Exposes a clear public API for use by other modules.
+ * All methods include robust error handling.
+ */
+const StorageModule = (function() {
+    /**
+     * Get the watch history array from localStorage.
+     * @returns {Array} Array of watch history entries.
+     */
+    function getWatchHistory() {
+        try {
+            return JSON.parse(localStorage.getItem('watchHistory') || '[]');
+        } catch (e) {
+            console.error('[StorageModule] Failed to parse watchHistory:', e);
+            return [];
+        }
+    }
+
+    /**
+     * Save the watch history array to localStorage.
+     * @param {Array} history
+     */
+    function setWatchHistory(history) {
+        try {
+            localStorage.setItem('watchHistory', JSON.stringify(history));
+        } catch (e) {
+            console.error('[StorageModule] Failed to save watchHistory:', e);
+        }
+    }
+
+    /**
+     * Get playback positions from localStorage.
+     * @returns {Object}
+     */
+    function getPlaybackPositions() {
+        try {
+            return JSON.parse(localStorage.getItem('playbackPositions') || '{}');
+        } catch (e) {
+            console.error('[StorageModule] Failed to parse playbackPositions:', e);
+            return {};
+        }
+    }
+
+    /**
+     * Save playback positions to localStorage.
+     * @param {Object} positions
+     */
+    function setPlaybackPositions(positions) {
+        try {
+            localStorage.setItem('playbackPositions', JSON.stringify(positions));
+        } catch (e) {
+            console.error('[StorageModule] Failed to save playbackPositions:', e);
+        }
+    }
+
+    /**
+     * Save a playback position for a specific video/episode.
+     * @param {string} videoId
+     * @param {string} episodeName
+     * @param {number} time
+     */
+    function savePlaybackPosition(videoId, episodeName, time) {
+        try {
+            const positions = getPlaybackPositions();
+            const key = `${videoId}||${(episodeName||'').trim()}`;
+            positions[key] = time;
+            setPlaybackPositions(positions);
+            console.log('[Resume Debug][save] key:', key, 'time:', time, 'positions:', positions);
+        } catch (e) {
+            console.error('[StorageModule] Failed to save playback position:', e);
+        }
+    }
+
+    /**
+     * Get playback position for a specific video/episode.
+     * @param {string} videoId
+     * @param {string} episodeName
+     * @returns {number}
+     */
+    function getPlaybackPosition(videoId, episodeName) {
+        try {
+            const positions = getPlaybackPositions();
+            const key = `${videoId}||${(episodeName||'').trim()}`;
+            const value = positions[key] || 0;
+            console.log('[Resume Debug][get] key:', key, 'value:', value, 'positions:', positions);
+            return value;
+        } catch (e) {
+            console.error('[StorageModule] Failed to get playback position:', e);
+            return 0;
+        }
+    }
+
+    /**
+     * Get watched episodes from localStorage.
+     * @returns {Object}
+     */
+    function getWatchedEpisodes() {
+        try {
+            return JSON.parse(localStorage.getItem('watchedEpisodes') || '{}');
+        } catch (e) {
+            console.error('[StorageModule] Failed to parse watchedEpisodes:', e);
+            return {};
+        }
+    }
+
+    /**
+     * Save watched episodes to localStorage.
+     * @param {Object} watched
+     */
+    function setWatchedEpisodes(watched) {
+        try {
+            localStorage.setItem('watchedEpisodes', JSON.stringify(watched));
+        } catch (e) {
+            console.error('[StorageModule] Failed to save watchedEpisodes:', e);
+        }
+    }
+
+    /**
+     * Add an entry to the watch history.
+     * Avoids duplicate consecutive entries and limits to 100 items.
+     * @param {string} videoId
+     * @param {string} episodeName
+     */
+    function addToWatchHistory(videoId, episodeName) {
+        try {
+            console.log('[DEBUG] addToWatchHistory called with:', videoId, episodeName);
+            const history = getWatchHistory();
+            const timestamp = new Date().toISOString();
+            if (history.length > 0) {
+                const last = history[history.length - 1];
+                if (last.videoId === videoId && last.episodeName === episodeName) {
+                    console.log('[DEBUG] Duplicate consecutive entry. Skipping.');
+                    return;
+                }
+            }
+            history.push({ videoId, episodeName, timestamp });
+            if (history.length > 100) history.shift();
+            setWatchHistory(history);
+            console.log('[DEBUG] watchHistory after push:', history);
+        } catch (e) {
+            console.error('[StorageModule] Failed to add to watch history:', e);
+        }
+    }
+
+    /**
+     * Mark an episode as watched, and add to watch history.
+     * @param {string} videoId
+     * @param {string} episodeName
+     */
+    function markEpisodeWatched(videoId, episodeName) {
+        try {
+            console.log('[DEBUG] markEpisodeWatched called with:', videoId, episodeName);
+            const watched = getWatchedEpisodes();
+            if (!watched[videoId]) watched[videoId] = [];
+            if (!watched[videoId].includes(episodeName)) {
+                watched[videoId].push(episodeName);
+                setWatchedEpisodes(watched);
+            }
+            addToWatchHistory(videoId, episodeName);
+        } catch (e) {
+            console.error('[StorageModule] Failed to mark episode watched:', e);
+        }
+    }
+
+    /**
+     * Check if an episode is watched.
+     * @param {string} videoId
+     * @param {string} episodeName
+     * @returns {boolean}
+     */
+    function isEpisodeWatched(videoId, episodeName) {
+        try {
+            const watched = getWatchedEpisodes();
+            return watched[videoId] && watched[videoId].includes(episodeName);
+        } catch (e) {
+            console.error('[StorageModule] Failed to check if episode is watched:', e);
+            return false;
+        }
+    }
+
+    /**
+     * Watch list helpers
+     */
+    function getWatchList() {
+        try {
+            return JSON.parse(localStorage.getItem('watchList') || '[]');
+        } catch (e) {
+            console.error('[StorageModule] Failed to parse watchList:', e);
+            return [];
+        }
+    }
+    function setWatchList(watchList) {
+        try {
+            localStorage.setItem('watchList', JSON.stringify(watchList));
+        } catch (e) {
+            console.error('[StorageModule] Failed to save watchList:', e);
+        }
+    }
+
+    // Public API
+    return {
+        getWatchHistory,
+        setWatchHistory,
+        getPlaybackPositions,
+        setPlaybackPositions,
+        savePlaybackPosition,
+        getPlaybackPosition,
+        getWatchedEpisodes,
+        setWatchedEpisodes,
+        addToWatchHistory,
+        markEpisodeWatched,
+        isEpisodeWatched,
+        getWatchList,
+        setWatchList
+    };
+})();
+
+/**
+ * ApiModule
+ * Handles API URL, CORS proxy logic, and data fetching.
+ * Exposes fetchData for making API requests with robust error handling.
+ * No business logic or DOM manipulation included.
+ */
+const ApiModule = (function() {
+    // Use a public CORS proxy instead of a local server
+    const apiUrl = 'https://api.yzzy-api.com/inc/api_mac10.php';
+    // CORS proxies options (if one fails, will try the next)
+    const corsProxies = [
+        'https://corsproxy.io/?',
+        'https://cors.eu.org/',
+        'https://thingproxy.freeboard.io/fetch/?url=',
+        'https://api.allorigins.win/raw?url=',
+        'https://api.allorigins.cf/raw?url=',
+        'https://api.allorigins.tk/raw?url=',
+        'https://api.codetabs.com/v1/proxy?quest=',
+        'https://yacdn.org/proxy/',
+        'https://cors.bridged.cc/',
+        'https://cors.sho.sh/',
+        'https://cors.ironproxy.xyz/',
+        'https://norobe-cors-anywhere.herokuapp.com/',
+        'https://corsproxy.github.io/?url=',
+        'https://cors-proxy.elfsight.com/',
+        '' // Direct API (may not work due to CORS)
+    ];
+    let currentProxyIndex = 0;
+
+    /**
+     * Fetch data from the API using a CORS proxy with fallback.
+     * @param {Object} params - Query parameters for the API.
+     * @param {boolean} [silent=false] - If true, does not trigger UI loading.
+     * @returns {Promise<Object|null>} - API response data or null if all proxies fail.
+     */
+    async function fetchData(params, silent = false) {
+        // Note: UI loading and toast logic should be handled outside this module.
+        // This function only returns data or throws errors.
+        const queryParams = new URLSearchParams(params).toString();
+        const targetUrl = `${apiUrl}?${queryParams}`;
+        const originalProxyIndex = currentProxyIndex;
+        let proxyAttempts = 0;
+        let success = false;
+        let responseData = null;
+
+        while (!success && proxyAttempts < corsProxies.length) {
+            const proxyUrl = corsProxies[currentProxyIndex] + encodeURIComponent(targetUrl);
+            try {
+                const response = await fetch(proxyUrl);
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                const data = await response.json();
+                if (data.code !== 1) {
+                    throw new Error(`API Error: ${data.msg}`);
+                }
+                success = true;
+                responseData = data;
+            } catch (error) {
+                // Move to next proxy
+                currentProxyIndex = (currentProxyIndex + 1) % corsProxies.length;
+                proxyAttempts++;
+                if (proxyAttempts >= corsProxies.length) {
+                    console.error(`[ApiModule] Failed to fetch data after trying all CORS proxies:`, error);
+                }
+            }
+        }
+        return responseData; // Will be null if all proxies failed
+    }
+
+    // Public API
+    return {
+        fetchData
+    };
+})();
+
+// --- END MODULES ---
+
+
     // --- Watch History Modal Logic ---
     const watchHistoryButton = document.getElementById('watchHistoryButton');
     const watchHistoryModal = document.getElementById('watchHistoryModal');
@@ -141,9 +439,9 @@ document.addEventListener('DOMContentLoaded', () => {
     // Export all user data to JSON
     function exportAllUserData() {
         const data = {
-            watchedEpisodes: getWatchedEpisodes(),
-            playbackPositions: getPlaybackPositions(),
-            watchList: JSON.parse(localStorage.getItem('watchList') || '[]')
+            watchedEpisodes: StorageModule.getWatchedEpisodes(),
+            playbackPositions: StorageModule.getPlaybackPositions(),
+            watchList: StorageModule.getWatchList()
         };
         const dataStr = JSON.stringify(data, null, 2);
         const blob = new Blob([dataStr], { type: 'application/json' });
@@ -167,13 +465,13 @@ document.addEventListener('DOMContentLoaded', () => {
             try {
                 const imported = JSON.parse(e.target.result);
                 if (imported.watchedEpisodes) {
-                    localStorage.setItem('watchedEpisodes', JSON.stringify(imported.watchedEpisodes));
+                    StorageModule.setWatchedEpisodes(imported.watchedEpisodes);
                 }
                 if (imported.playbackPositions) {
-                    localStorage.setItem('playbackPositions', JSON.stringify(imported.playbackPositions));
+                    StorageModule.setPlaybackPositions(imported.playbackPositions);
                 }
                 if (imported.watchList) {
-                    localStorage.setItem('watchList', JSON.stringify(imported.watchList));
+                    StorageModule.setWatchList(imported.watchList);
                     watchList = imported.watchList;
                 }
                 showToast('All user data imported!', 'info');
