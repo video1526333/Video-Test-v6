@@ -1001,7 +1001,12 @@ document.addEventListener('DOMContentLoaded', () => {
             if (currentActive) {
                 currentActive.classList.remove('active');
             }
-            categoryList.querySelector('li[data-id=""]').classList.add('active');
+            const allCategoryLi = categoryList.querySelector('li[data-id=""]');
+            if (allCategoryLi) {
+                allCategoryLi.classList.add('active');
+            } else {
+                console.warn('[DEBUG] No <li data-id=""> found when resetting active category on search.');
+            }
 
             loadVideos(1, '', searchTerm); // Load page 1, clear category, use search term
 
