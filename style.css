@@ -61,12 +61,13 @@ header h1 {
   width: 180px;
   transition: border 0.15s;
 }
-#searchInput:focus {
-  outline: none;
-  border: 1.5px solid var(--accent);
-}
+/*
+  When the search input is focused, show a colored outline and change background for better visibility.
+  Only one definition needed for clarity. (Juniors: if you define the same selector twice, the last one wins!)
+*/
 #searchInput:focus {
   outline: 2px solid var(--accent);
+  border: 1.5px solid var(--accent);
   background: #232323;
 }
 .search-container button {
@@ -107,7 +108,8 @@ header h1 {
   color: var(--bg);
 }
 
-/* Share button styling */
+/* Share button styling
+   Juniors: Use :hover for button effects! Group related rules together for clarity. */
 .share-button {
   background: var(--accent);
   color: var(--bg);
@@ -120,7 +122,6 @@ header h1 {
   display: inline-block;
   transition: all 0.2s ease;
 }
-
 .share-button:hover {
   background: #a370dd;
   transform: translateY(-2px);
