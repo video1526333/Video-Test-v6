@@ -1256,28 +1256,28 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         history.push({ videoId, episodeName, timestamp });
         // Limit history to 100 items
-    if (history.length > 100) history.shift();
-    localStorage.setItem('watchHistory', JSON.stringify(history));
-    console.log('[DEBUG] watchHistory after push:', history);
-}
-
-// --- Initialization ---
-async function initialize() {
-    // Remove active from any existing items
-    const activeItems = categoryList.querySelectorAll('li.active');
-    activeItems.forEach(li => li.classList.remove('active'));
-    // Default load: show watch list
-    const watchLi = categoryList.querySelector('li[data-id="watchlist"]');
-    if (watchLi) {
-        watchLi.classList.add('active');
+        if (history.length > 100) history.shift();
+        localStorage.setItem('watchHistory', JSON.stringify(history));
+        console.log('[DEBUG] watchHistory after push:', history);
     }
-    loadWatchList();
 
-    // Check if user is already authenticated
-    checkStoredPassword();
-    // Check if we should load a specific video (from shared link)
-    checkForSharedVideo();
-}
+    // --- Initialization ---
+    async function initialize() {
+        // Remove active from any existing items
+        const activeItems = categoryList.querySelectorAll('li.active');
+        activeItems.forEach(li => li.classList.remove('active'));
+        // Default load: show watch list
+        const watchLi = categoryList.querySelector('li[data-id="watchlist"]');
+        if (watchLi) {
+            watchLi.classList.add('active');
+        }
+        loadWatchList();
+
+        // Check if user is already authenticated
+        checkStoredPassword();
+        // Check if we should load a specific video (from shared link)
+        checkForSharedVideo();
+    }
 
 
     // --- Check for shared video in URL ---
