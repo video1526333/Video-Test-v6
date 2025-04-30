@@ -305,19 +305,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- Helper Functions ---
     function showLoading() {
-        loadingIndicator.style.display = 'block';
-        isLoading = true;
-    }
-
-    function hideLoading() {
-        loadingIndicator.style.display = 'none';
-        isLoading = false;
-    }
-
-    async function fetchData(params, silent = false) {
-        if (!silent) showLoading();
-        // Build query string
-        const queryParams = new URLSearchParams(params).toString();
         const targetUrl = `${apiUrl}?${queryParams}`;
         
         // Track original proxy index to avoid infinite loop
@@ -460,6 +447,11 @@ document.addEventListener('DOMContentLoaded', () => {
             currentSearch = searchTerm;
             hasMoreContent = true;
         }
+
+        // Show infinite loader if loading next page (append)
+        const infiniteLoader = document.getElementById('infiniteLoader');
+        if (append && infiniteLoader) infiniteLoader.style.display = 'flex';
+        else if (infiniteLoader) infiniteLoader.style.display = 'none';
 
         const params = { ac: 'list', pg: currentPage };
         
