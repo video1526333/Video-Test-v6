@@ -408,20 +408,29 @@ document.addEventListener('DOMContentLoaded', () => {
             } else {
                 console.warn(`Category ID ${cat.type_id} has null name.`);
             }
-        });
-        // Add Watch List option at end of categories
-        const watchLi = document.createElement('li');
-        watchLi.textContent = 'Watch List';
-        watchLi.dataset.id = 'watchlist';
-        categoryList.appendChild(watchLi);
-    }
 
-    // Function to handle image URLs more robustly
-    function getValidImageUrl(imageUrl) {
-        if (!imageUrl) return null;
-        
-        // If it already starts with http/https, use it
-        if (imageUrl.startsWith('http://') || imageUrl.startsWith('https://')) {
+/**
+ * Show a toast notification
+ * @param {string} message - Text to display
+ * @param {string} type - 'error' or 'info'
+ * @param {number} duration - millisecs to display
+ */
+function showToast(message, type = 'info', duration = 4000) {
+    if (!toastContainer) return;
+    const toast = document.createElement('div');
+    toast.className = `toast ${type}`;
+    toast.textContent = message;
+    toastContainer.appendChild(toast);
+    // force reflow for transition
+    requestAnimationFrame(() => toast.classList.add('show'));
+    // remove after duration
+    setTimeout(() => {
+        toast.classList.remove('show');
+        toast.addEventListener('transitionend', () => {
+            toast.remove();
+        });
+    }, duration);
+}
             return imageUrl;
         }
         
