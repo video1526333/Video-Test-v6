@@ -468,7 +468,7 @@ document.addEventListener('DOMContentLoaded', () => {
             params.t = currentCategory;
         }
 
-        console.log(`Search term: ${currentSearch}`);
+        console.log(`API params:`, params);
 
         const data = await fetchData(params);
         if (!data || !data.list) {
