@@ -1010,9 +1010,4 @@ button:active {
     left: 0;
   }
 
-  nav ul {
-    flex-direction: column;
-    overflow-y: auto;
-    height: calc(100% - 4rem);
-  }
 }
